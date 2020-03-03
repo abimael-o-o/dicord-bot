@@ -1,2 +1,2 @@
-# dicord-bot
+# discord-bot
 creates discord bot
