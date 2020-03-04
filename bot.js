@@ -1,18 +1,21 @@
-
 // Run dotenv
-require('dotenv').config();
+require("dotenv").config();
 
-const Discord = require('discord.js');
+const Discord = require("discord.js");
 const client = new Discord.Client();
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
 
-client.on('message', msg => {
-    if (msg.content === 'ping') {
-      msg.reply('pong');
+client.on("message", msg => {
+  if (msg.channel.id == 356575333899829259) {
+    if (msg.content === "ping") {
+      msg.reply("pong");
     }
-  });
+  }
+
+  console.log(msg.guild.id);
+});
