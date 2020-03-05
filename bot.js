@@ -3,6 +3,7 @@ require("dotenv").config();
 
 const Discord = require("discord.js");
 const client = new Discord.Client();
+let rdyGuild;
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -22,8 +23,17 @@ client.on("guildCreate", rdy => {
       },
     ],*/
     reason: "Needed a cool new channel" })
-  .then(console.log)
+  .then(console.log("created a channel"))
   .catch(console.error);
+ // console.log(botChannel);
+  rdyGuild = rdy;
+ const botchannel = rdy.channels.cache.find(ch => ch.name === 'light');
+  
+ console.log( "Redy "+ botchannel);
+
+ botchannel.send('hello!')
+ .then(console.log("error"))
+ .catch(console.error);
 
 });
 
@@ -44,7 +54,14 @@ client.on("message", msg => {
       msg.delete(deletesMsg);
     }
   }
+  const botchannel = msg.guild.channels.cache.find(ch => ch.name === 'light');
+  console.log("message " +botchannel);
+  botchannel.send('hello!')
+  .then(console.log)
+  .catch(console.error);
 
-  console.log(msg.guild.id);
+  const botcnnel = rdyGuild.channels.cache.find(ch => ch.name === 'light');
+  console.log(botcnnel);
+  console.log(rdyGuild);
 });
 
