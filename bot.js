@@ -10,12 +10,37 @@ client.on("ready", () => {
 
 client.login(process.env.DISCORD_TOKEN);
 
+
 client.on("message", msg => {
-  if (msg.channel.id == 356575333899829259) {
+
+  if(msg.author.bot) return; 
+
+  if (msg.channel.id == 684887506717769766) {
     if (msg.content === "ping") {
-      msg.reply("pong");
+      msg.reply("pong").then(bot_msg => {
+        bot_msg.delete(deletesMsg);
+      });
+
+      const deletesMsg = {
+        timeout: 5000,
+        reason: "none"
+      };
+      msg.delete(deletesMsg);
     }
   }
+
+  msg.guild.channels
+    .create("light", { 
+      type: 'text',
+      permissionOverwrites: [
+        {
+          id: msg.author.id,
+          deny: ['VIEW_CHANNEL'],
+        },
+      ],
+      reason: "Needed a cool new channel" })
+    .then(console.log)
+    .catch(console.error);
 
   console.log(msg.guild.id);
 });
