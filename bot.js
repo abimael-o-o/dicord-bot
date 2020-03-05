@@ -31,7 +31,7 @@ client.on("message", msg => {
 
   if(msg.author.bot) return; 
 
-  if (msg.channel.id == 684887506717769766) {
+  if (msg.channel.name === "light") {
     if (msg.content === "ping") {
       msg.reply("pong").then(bot_msg => {
         bot_msg.delete(deletesMsg);
