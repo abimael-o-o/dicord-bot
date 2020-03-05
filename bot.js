@@ -12,34 +12,17 @@ client.on("ready", () => {
 client.login(process.env.DISCORD_TOKEN);
 
 client.on("guildCreate", rdy => {
-
   rdy.channels
-   .create("light", { 
-    type: 'text',
-/*    permissionOverwrites: [
-      {
-        id: rdy.id,
-        deny: ['VIEW_CHANNEL'],
-      },
-    ],*/
-    reason: "Needed a cool new channel" })
-  .then(console.log("created a channel"))
-  .catch(console.error);
- // console.log(botChannel);
-  rdyGuild = rdy;
- const botchannel = rdy.channels.cache.find(ch => ch.name === 'light');
-  
- console.log( "Redy "+ botchannel);
-
- botchannel.send('hello!')
- .then(console.log("error"))
- .catch(console.error);
-
+    .create("light", {
+      type: "text",
+      reason: "Needed a cool new channel"
+    })
+    .then(chn => chn.send("hello"))
+    .catch(console.error);
 });
 
 client.on("message", msg => {
-
-  if(msg.author.bot) return; 
+  if (msg.author.bot) return;
 
   if (msg.channel.name === "light") {
     if (msg.content === "ping") {
@@ -54,14 +37,4 @@ client.on("message", msg => {
       msg.delete(deletesMsg);
     }
   }
-  const botchannel = msg.guild.channels.cache.find(ch => ch.name === 'light');
-  console.log("message " +botchannel);
-  botchannel.send('hello!')
-  .then(console.log)
-  .catch(console.error);
-
-  const botcnnel = rdyGuild.channels.cache.find(ch => ch.name === 'light');
-  console.log(botcnnel);
-  console.log(rdyGuild);
 });
-
