@@ -25,16 +25,39 @@ client.on("message", msg => {
   if (msg.author.bot) return;
 
   if (msg.channel.name === "light") {
-    if (msg.content === "ping") {
+    
+    var command = commands(msg.content.split(" "));
+
+
+    msg.reply(command).then(bot_msg => {
+      bot_msg.delete(deletesMsg);
+    });
+
+
+   /* if (msg.content === "ping") {
       msg.reply("pong").then(bot_msg => {
         bot_msg.delete(deletesMsg);
       });
+    
 
-      const deletesMsg = {
-        timeout: 5000,
-        reason: "none"
-      };
-      msg.delete(deletesMsg);
     }
+    */
+    const deletesMsg = {
+      timeout: 5000,
+      reason: "none"
+    };
+    msg.delete(deletesMsg);
   }
 });
+
+function commands(command){
+  var result;  
+  switch(command[0]){
+      case ".help": result = "!command";
+        break;
+      case ".play": result = "song";
+      break;
+      default: result = "Invalid command";
+    }
+    return result;
+}
