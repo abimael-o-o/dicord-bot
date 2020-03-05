@@ -10,6 +10,22 @@ client.on("ready", () => {
 
 client.login(process.env.DISCORD_TOKEN);
 
+client.on("guildCreate", rdy => {
+
+  rdy.channels
+   .create("light", { 
+    type: 'text',
+/*    permissionOverwrites: [
+      {
+        id: rdy.id,
+        deny: ['VIEW_CHANNEL'],
+      },
+    ],*/
+    reason: "Needed a cool new channel" })
+  .then(console.log)
+  .catch(console.error);
+
+});
 
 client.on("message", msg => {
 
@@ -29,18 +45,6 @@ client.on("message", msg => {
     }
   }
 
-  msg.guild.channels
-    .create("light", { 
-      type: 'text',
-      permissionOverwrites: [
-        {
-          id: msg.author.id,
-          deny: ['VIEW_CHANNEL'],
-        },
-      ],
-      reason: "Needed a cool new channel" })
-    .then(console.log)
-    .catch(console.error);
-
   console.log(msg.guild.id);
 });
+
