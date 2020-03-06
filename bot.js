@@ -71,8 +71,8 @@ async function Play(song, voiceChannel, connection){
   //let stream = ytdl(song, { filter: 'audioonly' });
   //stream.on('error', console.error);
   const dispatcher = connection.play(song)
-    .on('speaking', anything => {
-      if(!anything){
+    .on('speaking', speakState => {
+      if(!speakState){
         console.log('ends song');
         queueSongs.shift();
         console.log(queueSongs);
