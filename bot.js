@@ -6,13 +6,16 @@ const client = new Discord.Client();
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 
+let queueSongs = [];
+
+// ready 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
 
-client.on("guildCreate", rdy => {
+client.on("guildCreate", rdy => { //creates guild 
   rdy.channels
     .create("light", {
       type: "text",
@@ -22,11 +25,13 @@ client.on("guildCreate", rdy => {
     .catch(console.error);
 });
 
+
+//messages 
 client.on("message", msg => {
   if (msg.author.bot) return;
-
-  if(msg.content === '.join') joinChannel(msg, client, msg.content);
-    msg.delete(deletesMsg);
+  let command = msg.content.split(' ');
+  if(command[0].startsWith('.play')) joinChannel(msg, client, command[1]);
+  msg.delete(deletesMsg);
 });
 
 
@@ -36,6 +41,7 @@ const deletesMsg = {
   };
 
 function joinChannel(msg, bot, args){
+
   let voiceChannel = msg.member.voice.channel;
   if(!voiceChannel){
     return msg.channel.send('you need to be in voice channel');
@@ -43,10 +49,36 @@ function joinChannel(msg, bot, args){
   msg.channel.send('you are in channel');
   voiceChannel.join()
     .then(connection => {
-      connection.play(ytdl('https://www.youtube.com/watch?v=W0PJ86_GhFY&list=RDMMW0PJ86_GhFY&start_radio=1', { quality: 'highestaudio' }));
+      if(queueSongs.length < 1){
+        queueSongs.push(args);
+        Play(args, voiceChannel, connection);
+      }else{
+        queueSongs.push(args);
+      }
+      
+      console.log(args);
+      console.log(queueSongs);
       console.log('connected');
     })
     .catch(console.error);
+}
+
+async function Play(song, voiceChannel, connection){
+  console.log('playing song' + song);
+  if(queueSongs.length < 1){
+    return voiceChannel.leave();
+  }
+  //let stream = ytdl(song, { filter: 'audioonly' });
+  //stream.on('error', console.error);
+  const dispatcher = connection.play(song)
+    .on('speaking', anything => {
+      if(!anything){
+        console.log('ends song');
+        queueSongs.shift();
+        console.log(queueSongs);
+        Play(queueSongs[0], voiceChannel, connection);
+      };
+  });
 }
     
   
