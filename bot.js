@@ -3,7 +3,8 @@ require("dotenv").config();
 
 const Discord = require("discord.js");
 const client = new Discord.Client();
-let rdyGuild;
+const fs = require('fs');
+const ytdl = require('ytdl-core');
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -24,40 +25,28 @@ client.on("guildCreate", rdy => {
 client.on("message", msg => {
   if (msg.author.bot) return;
 
-  if (msg.channel.name === "light") {
-    
-    var command = commands(msg.content.split(" "));
-
-
-    msg.reply(command).then(bot_msg => {
-      bot_msg.delete(deletesMsg);
-    });
-
-
-   /* if (msg.content === "ping") {
-      msg.reply("pong").then(bot_msg => {
-        bot_msg.delete(deletesMsg);
-      });
-    
-
-    }
-    */
-    const deletesMsg = {
-      timeout: 5000,
-      reason: "none"
-    };
+  if(msg.content === '.join') joinChannel(msg, client, msg.content);
     msg.delete(deletesMsg);
-  }
 });
 
-function commands(command){
-  var result;  
-  switch(command[0]){
-      case ".help": result = "!command";
-        break;
-      case ".play": result = "song";
-      break;
-      default: result = "Invalid command";
-    }
-    return result;
+
+const deletesMsg = {
+    timeout: 5000,
+    reason: "none"
+  };
+
+function joinChannel(msg, bot, args){
+  let voiceChannel = msg.member.voice.channel;
+  if(!voiceChannel){
+    return msg.channel.send('you need to be in voice channel');
+  }
+  msg.channel.send('you are in channel');
+  voiceChannel.join()
+    .then(connection => {
+      connection.play(ytdl('https://www.youtube.com/watch?v=W0PJ86_GhFY&list=RDMMW0PJ86_GhFY&start_radio=1', { quality: 'highestaudio' }));
+      console.log('connected');
+    })
+    .catch(console.error);
 }
+    
+  
