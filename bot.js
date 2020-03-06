@@ -85,7 +85,7 @@ async function Play(song, voiceChannel, connection, msg){
         console.log('ends song');
         queueSongs.shift();
         console.log(queueSongs);
-        Play(queueSongs[0], voiceChannel, connection);
+        Play(queueSongs[0], voiceChannel, connection,msg);
       };
   });
 }
