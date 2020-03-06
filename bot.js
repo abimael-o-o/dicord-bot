@@ -68,9 +68,9 @@ async function Play(song, voiceChannel, connection){
   if(queueSongs.length < 1){
     return voiceChannel.leave();
   }
-  //let stream = ytdl(song, { filter: 'audioonly' });
-  //stream.on('error', console.error);
-  const dispatcher = connection.play(song)
+  let stream = ytdl(song, { filter: 'audioonly' });
+  stream.on('error', console.error);
+  const dispatcher = connection.play(stream)
     .on('speaking', speakState => {
       if(!speakState){
         console.log('ends song');
