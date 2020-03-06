@@ -51,7 +51,7 @@ function joinChannel(msg, bot, args){
     .then(connection => {
       if(queueSongs.length < 1){
         queueSongs.push(args);
-        Play(args, voiceChannel, connection);
+        Play(args, voiceChannel, connection, msg);
       }else{
         queueSongs.push(args);
       }
@@ -63,14 +63,23 @@ function joinChannel(msg, bot, args){
     .catch(console.error);
 }
 
-async function Play(song, voiceChannel, connection){
+async function Play(song, voiceChannel, connection, msg){
   console.log('playing song' + song);
   if(queueSongs.length < 1){
     return voiceChannel.leave();
   }
-  let stream = ytdl(song, { filter: 'audioonly' });
+  const songInfo = await ytdl.getInfo(song);
+  const songDetails = {
+    title: songInfo.title,
+    thumbnail: songInfo.thumbnail_url,
+    timestamp: songInfo.timestamp,
+    quality: songInfo.formats
+  };
+  
+  msg.channel.send(songDetails.title);
+  let stream = ytdl(song);
   stream.on('error', console.error);
-  const dispatcher = connection.play(stream)
+  const dispatcher = await connection.play(stream)
     .on('speaking', speakState => {
       if(!speakState){
         console.log('ends song');
