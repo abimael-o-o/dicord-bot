@@ -50,23 +50,29 @@ const deletesMsg = {
     reason: "none"
   };
 
-function joinChannel(msg, bot, args){
+async function joinChannel(msg, bot, args){
 
   let voiceChannel = msg.member.voice.channel;
   if(!voiceChannel){
     return msg.channel.send('you need to be in voice channel');
   }
   msg.channel.send('you are in channel');
+
+  const songInfo = await ytdl.getInfo(args);
+  const songDetails = {
+    title: songInfo.title,
+    url: songInfo.video_url
+  };
   voiceChannel.join()
     .then(connection => {
       if(queueSongs.length < 1){
-        queueSongs.push(args);
+        queueSongs.push(songDetails);
         musicDetails.connection = connection;
         musicDetails.voiceChannel = voiceChannel;
         Play(args, musicDetails.voiceChannel, musicDetails.connection, msg);
       }else{
-        queueSongs.push(args);
-        msg.channel.send("Added song to queue");
+        queueSongs.push(songDetails);
+        msg.channel.send("Added song to queue" + queueSongs[queueSongs.length - 1].title);
       }
       
       console.log(args);
@@ -85,16 +91,11 @@ async function Play(song, voiceChannel, connection, msg){
   // for(let i = 0; i < queueSongs.length; i++){
   //   listSongs(msg, song);
   // }
-  const songInfo = await ytdl.getInfo(song);
-  const songDetails = {
-    title: songInfo.title,
-    url: songInfo.video_url
-  };
-  
+
   const embededMsg = new Discord.MessageEmbed()
     .setColor('#7289da')
-    .setTitle(songDetails.title)
-    .setURL(songDetails.thumbnail)
+    .setTitle(queueSongs[0].title)
+    .setURL(queueSongs[0].url)
   msg.channel.send(embededMsg);
 
   let stream = ytdl(song);
@@ -114,7 +115,7 @@ function skip(msg){
   if(!msg.member.voice) return msg.channel.send('You have to be in a voice channel to stop the music!');
   if(queueSongs.length < 1) return msg.channel.send("There is no song to skip");
   queueSongs.shift();
-  Play(queueSongs[0],musicDetails.voiceChannel, musicDetails.connection, msg);
+  Play(queueSongs[0].url,musicDetails.voiceChannel, musicDetails.connection, msg);
 }
 
 function pause(msg){
@@ -134,6 +135,6 @@ function resume(msg){
 function clear(msg){
   if(queueSongs.length < 1) return msg.send.channel("There is no songs in queue to clear!");
   queueSongs = [];
-  Play(queueSongs[0],musicDetails.voiceChannel, musicDetails.connection, msg);
+  Play(queueSongs[0].url,musicDetails.voiceChannel, musicDetails.connection, msg);
 }
   
