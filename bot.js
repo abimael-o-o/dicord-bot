@@ -68,15 +68,22 @@ async function Play(song, voiceChannel, connection, msg){
   if(queueSongs.length < 1){
     return voiceChannel.leave();
   }
+
+  // for(let i = 0; i < queueSongs.length; i++){
+  //   listSongs(msg, song);
+  // }
   const songInfo = await ytdl.getInfo(song);
   const songDetails = {
     title: songInfo.title,
-    thumbnail: songInfo.thumbnail_url,
-    timestamp: songInfo.timestamp,
-    quality: songInfo.formats
+    url: songInfo.video_url
   };
   
-  msg.channel.send(songDetails.title);
+  const embededMsg = new Discord.MessageEmbed()
+    .setColor('#7289da')
+    .setTitle(songDetails.title)
+    .setURL(songDetails.thumbnail)
+  msg.channel.send(embededMsg);
+
   let stream = ytdl(song);
   stream.on('error', console.error);
   const dispatcher = await connection.play(stream)
@@ -89,5 +96,9 @@ async function Play(song, voiceChannel, connection, msg){
       };
   });
 }
-    
+
+function listSongs(msg){
+  msg.channel.send()
+
+}
   
