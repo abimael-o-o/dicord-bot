@@ -125,7 +125,7 @@ function resume(msg){
   msg.channel.send("Song Resumed!");
 }
 function clear(msg){
-  if(queueSongs.length < 1) return msg.send.channel("There is no songs in queue to clear");
+  if(queueSongs.length < 1) return msg.send.channel("There is no songs in queue to clear!");
   queueSongs = [];
   Play(queueSongs[0],musicDetails.voiceChannel, musicDetails.connection, msg);
 }
