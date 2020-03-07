@@ -5,8 +5,14 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const fs = require('fs');
 const ytdl = require('ytdl-core');
+const prefix = '.';
 
 let queueSongs = [];
+const musicDetails = {
+  voiceChannel: null,
+  connection: null
+}
+let isPaused = false;
 
 // ready 
 client.on("ready", () => {
@@ -30,7 +36,11 @@ client.on("guildCreate", rdy => { //creates guild
 client.on("message", msg => {
   if (msg.author.bot) return;
   let command = msg.content.split(' ');
-  if(command[0].startsWith('.play')) joinChannel(msg, client, command[1]);
+  if(command[0].startsWith(`${prefix}play`)) joinChannel(msg, client, command[1]);
+  if(command[0].startsWith(`${prefix}skip`)) skip(msg);
+  if(command[0].startsWith(`${prefix}clear`)) clear(msg);
+  if(command[0].startsWith(`${prefix}pause`)) pause(msg);
+  if(command[0].startsWith(`${prefix}resume`)) resume(msg);
   msg.delete(deletesMsg);
 });
 
@@ -51,9 +61,12 @@ function joinChannel(msg, bot, args){
     .then(connection => {
       if(queueSongs.length < 1){
         queueSongs.push(args);
-        Play(args, voiceChannel, connection, msg);
+        musicDetails.connection = connection;
+        musicDetails.voiceChannel = voiceChannel;
+        Play(args, musicDetails.voiceChannel, musicDetails.connection, msg);
       }else{
         queueSongs.push(args);
+        msg.channel.send("Added song to queue");
       }
       
       console.log(args);
@@ -81,7 +94,7 @@ async function Play(song, voiceChannel, connection, msg){
   stream.on('error', console.error);
   const dispatcher = await connection.play(stream)
     .on('speaking', speakState => {
-      if(!speakState){
+      if(!speakState && !isPaused){
         console.log('ends song');
         queueSongs.shift();
         console.log(queueSongs);
@@ -89,5 +102,31 @@ async function Play(song, voiceChannel, connection, msg){
       };
   });
 }
-    
+
+function skip(msg){
+  if(!msg.member.voice) return msg.channel.send('You have to be in a voice channel to stop the music!');
+  if(queueSongs.length < 1) return msg.channel.send("There is no song to skip");
+  queueSongs.shift();
+  Play(queueSongs[0],musicDetails.voiceChannel, musicDetails.connection, msg);
+}
+
+function pause(msg){
+  if(queueSongs.length < 1) return msg.channel.send("There is no song to pause");
+  isPaused = true;
+  musicDetails.connection.dispatcher.pause();
+  msg.channel.send("Song Paused!")
+}
+
+function resume(msg){
+  if(queueSongs.length < 1) return msg.channel.send("There is no song to resume");
+  if(!isPaused) return msg.channel.send("Song is Already Playing!!");
+  isPaused = false;
+  musicDetails.connection.dispatcher.resume();
+  msg.channel.send("Song Resumed!");
+}
+function clear(msg){
+  if(queueSongs.length < 1) return msg.send.channel("There is no songs in queue to clear");
+  queueSongs = [];
+  Play(queueSongs[0],musicDetails.voiceChannel, musicDetails.connection, msg);
+}
   
