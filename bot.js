@@ -1,3 +1,4 @@
+
 // Run dotenv
 require("dotenv").config();
 
@@ -6,7 +7,8 @@ const client = new Discord.Client();
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 const prefix = '.';
-import { gapi } from 'youtube_api.js'; 
+
+
 
 let queueSongs = [];
 const musicDetails = {
@@ -19,7 +21,7 @@ const yt_url_prerfix = 'https://www.youtube.com/watch?v='
 // ready 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  authenticate().then(loadClient());
+  
 });
 
 client.login(process.env.DISCORD_TOKEN);
@@ -152,7 +154,8 @@ function clear(msg){
    * See instructions for running APIs Explorer code samples locally:
    * https://developers.google.com/explorer-help/guides/code_samples#javascript
    */
-
+  
+  
   function authenticate() {
     console.log('authenticate');
     return gapi.auth2.getAuthInstance()
@@ -183,6 +186,8 @@ function clear(msg){
   }
   gapi.load("client:auth2", function() {
     gapi.auth2.init({client_id: process.env.YT_CLIENTID});
+    console.log('gapi load');
   });
 
-  
+  authenticate();
+  loadClient();
