@@ -6,6 +6,7 @@ const client = new Discord.Client();
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 const prefix = '.';
+import { gapi } from 'youtube_api.js'; 
 
 let queueSongs = [];
 const musicDetails = {
@@ -13,10 +14,12 @@ const musicDetails = {
   connection: null
 }
 let isPaused = false;
+const yt_url_prerfix = 'https://www.youtube.com/watch?v='
 
 // ready 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  authenticate().then(loadClient());
 });
 
 client.login(process.env.DISCORD_TOKEN);
@@ -36,11 +39,14 @@ client.on("guildCreate", rdy => { //creates guild
 client.on("message", msg => {
   if (msg.author.bot) return;
   let command = msg.content.split(' ');
-  if(command[0].startsWith(`${prefix}play`)) joinChannel(msg, client, command[1]);
-  if(command[0].startsWith(`${prefix}skip`)) skip(msg);
-  if(command[0].startsWith(`${prefix}clear`)) clear(msg);
-  if(command[0].startsWith(`${prefix}pause`)) pause(msg);
-  if(command[0].startsWith(`${prefix}resume`)) resume(msg);
+  let command_prefix = command[0];
+  let args = command.shift().join(' ');
+  //if(command[0].startsWith(`${prefix}play`)) joinChannel(msg, client, command[1]);
+  if(command_prefix.startsWith(`${prefix}play`)) execute(args);
+  if(command_prefix.startsWith(`${prefix}skip`)) skip(msg);
+  if(command_prefix.startsWith(`${prefix}clear`)) clear(msg);
+  if(command_prefix.startsWith(`${prefix}pause`)) pause(msg);
+  if(command_prefix.startsWith(`${prefix}resume`)) resume(msg);
   msg.delete(deletesMsg);
 });
 
@@ -137,4 +143,46 @@ function clear(msg){
   queueSongs = [];
   Play(queueSongs[0].url,musicDetails.voiceChannel, musicDetails.connection, msg);
 }
+
+
+//Youtube API
+
+  /**
+   * Sample JavaScript code for youtube.search.list
+   * See instructions for running APIs Explorer code samples locally:
+   * https://developers.google.com/explorer-help/guides/code_samples#javascript
+   */
+
+  function authenticate() {
+    console.log('authenticate');
+    return gapi.auth2.getAuthInstance()
+        .signIn({scope: "https://www.googleapis.com/auth/youtube.force-ssl"})
+        .then(function() { console.log("Sign-in successful"); },
+              function(err) { console.error("Error signing in", err); });
+  }
+  function loadClient() {
+    console.log('loading client');
+    gapi.client.setApiKey(process.env.YT_KEY);
+    return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
+        .then(function() { console.log("GAPI client loaded for API"); },
+              function(err) { console.error("Error loading GAPI client for API", err); });
+  }
+  // Make sure the client is loaded and sign-in is complete before calling this method.
+  function execute(args) {
+    return gapi.client.youtube.search.list({
+      "part": "snippet",
+      "maxResults": 25,
+      "q": args,
+      type: "video"
+    })
+        .then(function(response) {
+                // Handle the results here (response.result has the parsed body).
+                console.log("Response", response);
+              },
+              function(err) { console.error("Execute error", err); });
+  }
+  gapi.load("client:auth2", function() {
+    gapi.auth2.init({client_id: process.env.YT_CLIENTID});
+  });
+
   
