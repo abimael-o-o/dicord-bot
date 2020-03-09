@@ -88,29 +88,41 @@ async function joinChannel(msg, bot, args){
         queueSongs.push(songDetails);
         msg.channel.send("Added song to queue " + queueSongs[queueSongs.length - 1].title);
       }
-      
+      queueList(msg, songDetails);
       console.log(args);
       console.log(queueSongs);
       console.log('connected');
     })
     .catch(console.error);
 }
+function queueList(msg, songDetails){
 
+  const embededMsg = new Discord.MessageEmbed()
+    .setColor('#7289da')
+    .setTitle('queue')
+    // .setURL('nothing')
+  embededMsg.addFields({
+    name: '1',
+    value: songDetails.title,
+    inline: true
+  });
+  console.log(embededMsg.addFields());
+  msg.channel.send(embededMsg);
+
+}
 async function Play(song, voiceChannel, connection, msg){
   console.log('playing song' + song);
   if(queueSongs.length < 1){
     return voiceChannel.leave();
   }
-
-  // for(let i = 0; i < queueSongs.length; i++){
-  //   listSongs(msg, song);
-  // }
-
-  const embededMsg = new Discord.MessageEmbed()
-    .setColor('#7289da')
-    .setTitle(queueSongs[0].title)
-    .setURL(queueSongs[0].url)
-  msg.channel.send(embededMsg);
+  
+  // const embededMsg = new Discord.MessageEmbed()
+  //   .setColor('#7289da')
+  //   .setTitle('queue')
+  //   // .setURL('nothing')
+  // embededMsg.addField({name: queueSongs[0].title});
+  // console.log(embededMsg.addFields());
+  // msg.channel.send(embededMsg);
 
   let stream = ytdl(song);
   stream.on('error', console.error);
