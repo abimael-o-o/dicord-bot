@@ -41,10 +41,10 @@ client.on("guildCreate", rdy => { //creates guild
 client.on("message", msg => {
   if (msg.author.bot) return;
   let command = msg.content.split(' ');
-  let command_prefix = command[0];
-  let args = command.shift().join(' ');
+  let command_prefix = command.shift();
+  let args = command.join(' ');
   //if(command[0].startsWith(`${prefix}play`)) joinChannel(msg, client, command[1]);
-  if(command_prefix.startsWith(`${prefix}play`)) execute(args);
+  if(command_prefix.startsWith(`${prefix}play`)) joinChannel(msg, client, args);
   if(command_prefix.startsWith(`${prefix}skip`)) skip(msg);
   if(command_prefix.startsWith(`${prefix}clear`)) clear(msg);
   if(command_prefix.startsWith(`${prefix}pause`)) pause(msg);
@@ -65,6 +65,11 @@ async function joinChannel(msg, bot, args){
     return msg.channel.send('you need to be in voice channel');
   }
   msg.channel.send('you are in channel');
+  
+  //checks to see if song doesnt start with http
+  if(!args.startsWith("http")){
+    GetSongLink(args);
+  }
 
   const songInfo = await ytdl.getInfo(args);
   const songDetails = {
@@ -154,40 +159,26 @@ function clear(msg){
    * See instructions for running APIs Explorer code samples locally:
    * https://developers.google.com/explorer-help/guides/code_samples#javascript
    */
-  
-  
-  function authenticate() {
-    console.log('authenticate');
-    return gapi.auth2.getAuthInstance()
-        .signIn({scope: "https://www.googleapis.com/auth/youtube.force-ssl"})
-        .then(function() { console.log("Sign-in successful"); },
-              function(err) { console.error("Error signing in", err); });
-  }
-  function loadClient() {
-    console.log('loading client');
-    gapi.client.setApiKey(process.env.YT_KEY);
-    return gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
-        .then(function() { console.log("GAPI client loaded for API"); },
-              function(err) { console.error("Error loading GAPI client for API", err); });
-  }
-  // Make sure the client is loaded and sign-in is complete before calling this method.
-  function execute(args) {
-    return gapi.client.youtube.search.list({
-      "part": "snippet",
-      "maxResults": 25,
-      "q": args,
-      type: "video"
-    })
-        .then(function(response) {
-                // Handle the results here (response.result has the parsed body).
-                console.log("Response", response);
-              },
-              function(err) { console.error("Execute error", err); });
-  }
-  gapi.load("client:auth2", function() {
-    gapi.auth2.init({client_id: process.env.YT_CLIENTID});
-    console.log('gapi load');
-  });
+const {google} = require('googleapis');
+const youtube = google.youtube({
+  version: 'v3',
+  auth: process.env.YT_KEY // specify your API key here
+});
 
-  authenticate();
-  loadClient();
+
+
+  async function GetSongLink(args) {
+    const params = {
+      part: 'snippet',
+      type: 'video',
+      maxResults: 10,
+      q: null
+    };
+    console.log(typeof(args))
+    params.q = args;
+    
+    const res = await youtube.search.list(params);
+    console.log( "Link: "+ yt_url_prerfix + res.data.items[0].id.videoId)
+    //return yt_url_prerfix + res.data.items[0].id.videoId;
+  };
+  
