@@ -86,7 +86,7 @@ async function joinChannel(msg, bot, args){
         Play(args, musicDetails.voiceChannel, musicDetails.connection, msg);
       }else{
         queueSongs.push(songDetails);
-        msg.channel.send("Added song to queue" + queueSongs[queueSongs.length - 1].title);
+        msg.channel.send("Added song to queue " + queueSongs[queueSongs.length - 1].title);
       }
       
       console.log(args);
@@ -119,8 +119,9 @@ async function Play(song, voiceChannel, connection, msg){
       if(!speakState && !isPaused){
         console.log('ends song');
         queueSongs.shift();
+        if(queueSongs.length < 1)  return voiceChannel.leave();
         console.log(queueSongs);
-        Play(queueSongs[0], voiceChannel, connection,msg);
+        Play(queueSongs[0].url, voiceChannel, connection,msg);
       };
   });
 }
@@ -174,6 +175,7 @@ const params = {
 };
 
   async function GetSongLink(params,args) {
+    console.log(args);
     params.q = args;
     
     const res = await youtube.search.list(params);
