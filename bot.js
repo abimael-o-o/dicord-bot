@@ -68,7 +68,8 @@ async function joinChannel(msg, bot, args){
   
   //checks to see if song doesnt start with http
   if(!args.startsWith("http")){
-    GetSongLink(args);
+    args = await GetSongLink(params,args);
+    console.log("Link after: " +args)
   }
 
   const songInfo = await ytdl.getInfo(args);
@@ -165,20 +166,20 @@ const youtube = google.youtube({
   auth: process.env.YT_KEY // specify your API key here
 });
 
+const params = {
+  part: 'snippet',
+  type: 'video',
+  maxResults: 10,
+  q: null
+};
 
-
-  async function GetSongLink(args) {
-    const params = {
-      part: 'snippet',
-      type: 'video',
-      maxResults: 10,
-      q: null
-    };
-    console.log(typeof(args))
+  async function GetSongLink(params,args) {
     params.q = args;
     
     const res = await youtube.search.list(params);
     console.log( "Link: "+ yt_url_prerfix + res.data.items[0].id.videoId)
-    //return yt_url_prerfix + res.data.items[0].id.videoId;
+    return yt_url_prerfix + res.data.items[0].id.videoId;
   };
+
+  //GetSongLink(params);
   
