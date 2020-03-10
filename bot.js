@@ -88,28 +88,32 @@ async function joinChannel(msg, bot, args){
         queueSongs.push(songDetails);
         msg.channel.send("Added song to queue " + queueSongs[queueSongs.length - 1].title);
       }
-      queueList(msg, songDetails, embededMsg);
+      queueList(msg);
       console.log(args);
       console.log(queueSongs);
       console.log('connected');
     })
     .catch(console.error);
 }
-
-  const embededMsg = new Discord.MessageEmbed()
+let lastQueueMessage;
+const embededMsg = new Discord.MessageEmbed()
     .setColor('#7289da')
     .setTitle('SONG QUEUE')
+    .setDescription("")
 
-function queueList(msg, songDetails, embededMsg){
-
-  const queueObject = {
-    name: '\u200B',
-    value: songDetails.title
-  }
-    // .setURL('nothing')
-  embededMsg.fields.push(queueObject);
-  msg.channel.send(embededMsg);
-  
+function queueList(msg){
+  let counter = 1;
+  let des = "";
+  queueSongs.forEach(song => {
+    console.log(song.title);
+    des = des +"\n"+counter+": "+ song.title;
+    counter += 1;
+   });
+  console.log(des);
+  embededMsg.setDescription(des);
+  console.log(lastQueueMessage);
+  if(lastQueueMessage != null) lastQueueMessage.then(msg => msg.delete());;
+  lastQueueMessage = msg.channel.send(embededMsg);
 }
 
 
@@ -136,6 +140,9 @@ async function Play(song, voiceChannel, connection, msg){
         queueSongs.shift();
         if(queueSongs.length < 1)  return voiceChannel.leave();
         console.log(queueSongs);
+        
+        lastQueueMessage.then(msg => msg.delete());
+        queueList(msg);
         Play(queueSongs[0].url, voiceChannel, connection,msg);
       };
   });
