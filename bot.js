@@ -44,11 +44,11 @@ client.on("message", msg => {
   let command_prefix = command.shift();
   let args = command.join(' ');
   //if(command[0].startsWith(`${prefix}play`)) joinChannel(msg, client, command[1]);
-  if(command_prefix.startsWith(`${prefix}play`)) joinChannel(msg, client, args);
-  if(command_prefix.startsWith(`${prefix}skip`)) skip(msg);
-  if(command_prefix.startsWith(`${prefix}clear`)) clear(msg);
-  if(command_prefix.startsWith(`${prefix}pause`)) pause(msg);
-  if(command_prefix.startsWith(`${prefix}resume`)) resume(msg);
+  if(command_prefix === (`${prefix}play`)) joinChannel(msg, client, args);
+  if(command_prefix === (`${prefix}skip`)) skip(msg);
+  if(command_prefix === (`${prefix}clear`)) clear(msg);
+  if(command_prefix === (`${prefix}pause`)) pause(msg);
+  if(command_prefix === (`${prefix}resume`)) resume(msg);
   msg.delete(deletesMsg);
 });
 
@@ -105,11 +105,14 @@ const embededMsg = new Discord.MessageEmbed()
 function queueList(msg){
   let counter = 1;
   let des = "";
+
   queueSongs.forEach(song => {
-    console.log(song.title);
-    des = des +"\n"+counter+": "+ song.title;
+    if(counter > 10)return;
+    des = des +"\n"+counter+". "+ song.title;
     counter += 1;
    });
+   if(counter == 11) des = des +"\n ...";
+
   console.log(des);
   embededMsg.setDescription(des);
   console.log(lastQueueMessage);
@@ -145,6 +148,7 @@ function skip(msg){
   if(!msg.member.voice) return msg.channel.send('You have to be in a voice channel to stop the music!');
   if(queueSongs.length < 1) return msg.channel.send("There is no song to skip");
   queueSongs.shift();
+  queueList(msg);
   Play(queueSongs[0].url,musicDetails.voiceChannel, musicDetails.connection, msg);
 }
 
@@ -165,7 +169,8 @@ function resume(msg){
 function clear(msg){
   if(queueSongs.length < 1) return msg.send.channel("There is no songs in queue to clear!");
   queueSongs = [];
-  Play(queueSongs[0].url,musicDetails.voiceChannel, musicDetails.connection, msg);
+  musicDetails.voiceChannel.leave();
+  if(lastQueueMessage != null) lastQueueMessage.then(msg => msg.delete());
 }
 
 
