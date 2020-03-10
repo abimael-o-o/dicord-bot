@@ -64,7 +64,7 @@ async function joinChannel(msg, bot, args){
   if(!voiceChannel){
     return msg.channel.send('you need to be in voice channel');
   }
-  msg.channel.send('you are in channel');
+  msg.channel.send('you are in channel').then(msg => msg.delete(deletesMsg));
   
   //checks to see if song doesnt start with http
   if(!args.startsWith("http")){
@@ -86,7 +86,8 @@ async function joinChannel(msg, bot, args){
         Play(args, musicDetails.voiceChannel, musicDetails.connection, msg);
       }else{
         queueSongs.push(songDetails);
-        msg.channel.send("Added song to queue " + queueSongs[queueSongs.length - 1].title);
+        msg.channel.send("Added song to queue " + queueSongs[queueSongs.length - 1].title)
+          .then(msg => msg.delete(deletesMsg));
       }
       queueList(msg);
       console.log(args);
@@ -122,14 +123,6 @@ async function Play(song, voiceChannel, connection, msg){
   if(queueSongs.length < 1){
     return voiceChannel.leave();
   }
-  
-  // const embededMsg = new Discord.MessageEmbed()
-  //   .setColor('#7289da')
-  //   .setTitle('queue')
-  //   // .setURL('nothing')
-  // embededMsg.addField({name: queueSongs[0].title});
-  // console.log(embededMsg.addFields());
-  // msg.channel.send(embededMsg);
 
   let stream = ytdl(song);
   stream.on('error', console.error);
