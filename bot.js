@@ -88,28 +88,31 @@ async function joinChannel(msg, bot, args){
         queueSongs.push(songDetails);
         msg.channel.send("Added song to queue " + queueSongs[queueSongs.length - 1].title);
       }
-      queueList(msg, songDetails);
+      queueList(msg, songDetails, embededMsg);
       console.log(args);
       console.log(queueSongs);
       console.log('connected');
     })
     .catch(console.error);
 }
-function queueList(msg, songDetails){
 
   const embededMsg = new Discord.MessageEmbed()
     .setColor('#7289da')
-    .setTitle('queue')
-    // .setURL('nothing')
-  embededMsg.addFields({
-    name: '1',
-    value: songDetails.title,
-    inline: true
-  });
-  console.log(embededMsg.addFields());
-  msg.channel.send(embededMsg);
+    .setTitle('SONG QUEUE')
 
+function queueList(msg, songDetails, embededMsg){
+
+  const queueObject = {
+    name: '\u200B',
+    value: songDetails.title
+  }
+    // .setURL('nothing')
+  embededMsg.fields.push(queueObject);
+  msg.channel.send(embededMsg);
+  
 }
+
+
 async function Play(song, voiceChannel, connection, msg){
   console.log('playing song' + song);
   if(queueSongs.length < 1){
