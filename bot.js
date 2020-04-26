@@ -75,8 +75,10 @@ async function play(bot, message, args) {
     // Searches Youtube with your query and the requester of the track(s).
     // Returns a SearchResult with tracks property.
     let link = args.split(" ");
-    console.log(link[1]);
-    const res = await bot.music.search(link[1], message.author);
+      link.shift();
+      link = link.join(" ");
+    console.log(link);
+    const res = await bot.music.search(link, message.author);
 
     // Adds the first track to the queue.
     player.queue.add(res.tracks[0]);
